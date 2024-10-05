@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Queue Visualization (FIFO)</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      .input-container {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 16px;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+      .enqueue-btn {
+        background-color: #3b82f6;
+      }
+      .dequeue-btn {
+        background-color: white;
+        color: black;
+        border: 1px solid #ccc;
+      }
+      .message {
+        margin-bottom: 16px;
+        padding: 8px;
+        background-color: #fef3c7;
+        border: 1px solid #f59e0b;
+        color: #92400e;
+        border-radius: 4px;
+      }
+      .queue-container {
+        border: 2px dashed #d1d5db;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      .queue-items {
+        display: flex;
+        align-items: center;
+      }
+      .queue-item {
+        border: 2px solid #10b981;
+        border-radius: 8px;
+        padding: 8px;
+        margin-right: 4px;
+        background-color: #d1fae5;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .empty-queue {
+        text-align: center;
+        color: #6b7280;
+      }
+      .queue-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Queue Visualization (FIFO)</h2>
+    <div class="input-container">
+      <input type="text" id="newItem" placeholder="Enter item to enqueue" />
+      <button onclick="enqueue()" class="enqueue-btn">➡️ Enqueue</button>
+      <button onclick="dequeue()" class="dequeue-btn">⬅️ Dequeue</button>
+    </div>
+    <div id="message" class="message" style="display: none"></div>
+    <div class="queue-container">
+      <div id="queueItems" class="queue-items">
+        <div class="empty-queue">Queue is empty</div>
+      </div>
+    </div>
+    <div class="queue-labels">
+      <div>Front (Dequeue)</div>
+      <div>Back (Enqueue)</div>
+    </div>
+
+    <script>
+      let queue = [];
+      const newItemInput = document.getElementById("newItem");
+      const messageDiv = document.getElementById("message");
+      const queueItemsDiv = document.getElementById("queueItems");
+
+      function updateQueueView() {
+        queueItemsDiv.innerHTML = "";
+        if (queue.length === 0) {
+          queueItemsDiv.innerHTML =
+            '<div class="empty-queue">Queue is empty</div>';
+        } else {
+          queue.forEach((item) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "queue-item";
+            itemDiv.textContent = item;
+            queueItemsDiv.appendChild(itemDiv);
+          });
+        }
+      }
+
+      function showMessage(text) {
+        messageDiv.textContent = text;
+        messageDiv.style.display = "block";
+      }
+
+      function enqueue() {
+        const newItem = newItemInput.value.trim();
+        if (newItem !== "") {
+          queue.push(newItem);
+          updateQueueView();
+          newItemInput.value = "";
+          showMessage(`Enqueued "${newItem}" to the queue.`);
+        }
+      }
+
+      function dequeue() {
+        if (queue.length > 0) {
+          const dequeuedItem = queue.shift();
+          updateQueueView();
+          showMessage(`Dequeued "${dequeuedItem}" from the queue.`);
+        } else {
+          showMessage("Cannot dequeue from an empty queue.");
+        }
+      }
+
+      // Initialize the queue view
+      updateQueueView();
+    </script>
+  </body>
+</html>

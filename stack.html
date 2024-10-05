@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stack Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      .input-container {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 16px;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .push-btn {
+        background-color: #3b82f6;
+      }
+      .pop-btn {
+        background-color: #ef4444;
+      }
+      .peek-btn {
+        background-color: #10b981;
+      }
+      .message {
+        margin-bottom: 16px;
+        padding: 8px;
+        background-color: #fef3c7;
+        border: 1px solid #f59e0b;
+        color: #92400e;
+        border-radius: 4px;
+      }
+      .stack-container {
+        border: 2px dashed #d1d5db;
+        padding: 16px;
+        border-radius: 8px;
+      }
+      .stack-item {
+        border: 2px solid #8b5cf6;
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 4px;
+        background-color: #ede9fe;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .empty-stack {
+        text-align: center;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Stack Visualization</h2>
+    <div class="input-container">
+      <input type="text" id="newItem" placeholder="Enter item to push" />
+      <button onclick="push()" class="push-btn">⬇️ Push</button>
+      <button onclick="pop()" class="pop-btn">⬆️ Pop</button>
+      <button onclick="peek()" class="peek-btn">Peek</button>
+    </div>
+    <div id="message" class="message" style="display: none"></div>
+    <div id="stackContainer" class="stack-container">
+      <div class="empty-stack">Stack is empty</div>
+    </div>
+
+    <script>
+      let stack = [];
+      const newItemInput = document.getElementById("newItem");
+      const messageDiv = document.getElementById("message");
+      const stackContainer = document.getElementById("stackContainer");
+
+      function updateStackView() {
+        stackContainer.innerHTML = "";
+        if (stack.length === 0) {
+          stackContainer.innerHTML =
+            '<div class="empty-stack">Stack is empty</div>';
+        } else {
+          stack
+            .slice()
+            .reverse()
+            .forEach((item) => {
+              const itemDiv = document.createElement("div");
+              itemDiv.className = "stack-item";
+              itemDiv.textContent = item;
+              stackContainer.appendChild(itemDiv);
+            });
+        }
+      }
+
+      function showMessage(text) {
+        messageDiv.textContent = text;
+        messageDiv.style.display = "block";
+      }
+
+      function push() {
+        const newItem = newItemInput.value.trim();
+        if (newItem !== "") {
+          stack.push(newItem);
+          updateStackView();
+          newItemInput.value = "";
+          showMessage(`Pushed "${newItem}" onto the stack.`);
+        }
+      }
+
+      function pop() {
+        if (stack.length > 0) {
+          const poppedItem = stack.pop();
+          updateStackView();
+          showMessage(`Popped "${poppedItem}" from the stack.`);
+        } else {
+          showMessage("Cannot pop from an empty stack.");
+        }
+      }
+
+      function peek() {
+        if (stack.length > 0) {
+          showMessage(`Top element is "${stack[stack.length - 1]}".`);
+        } else {
+          showMessage("Stack is empty. Cannot peek.");
+        }
+      }
+
+      // Initialize the stack view
+      updateStackView();
+    </script>
+  </body>
+</html>
