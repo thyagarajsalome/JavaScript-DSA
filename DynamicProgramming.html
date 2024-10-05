@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Programming: Fibonacci</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f7f7f7;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      input[type="number"] {
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 80px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .steps-container {
+        margin-top: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: #f9f9f9;
+      }
+      .step-text {
+        margin: 5px 0;
+      }
+      .retrieved {
+        color: #28a745;
+      }
+      .base {
+        color: #007bff;
+      }
+      .calculated {
+        color: #6f42c1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Dynamic Programming: Fibonacci</h2>
+
+      <!-- Input for Fibonacci number and calculate button -->
+      <div>
+        <input type="number" id="input-number" value="10" min="0" max="20" />
+        <button onclick="handleCalculate()">Calculate Fibonacci</button>
+      </div>
+
+      <!-- Display result -->
+      <div id="result" class="result"></div>
+
+      <!-- Steps visualization -->
+      <div id="steps-container" class="steps-container"></div>
+    </div>
+
+    <script>
+      let steps = [];
+
+      function fibonacci(n, memo = {}) {
+        steps = []; // Clear previous steps
+
+        function fib(n) {
+          if (n in memo) {
+            steps.push(`Retrieved fib(${n}) = ${memo[n]} from memo`);
+            return memo[n];
+          }
+          if (n <= 1) {
+            memo[n] = n;
+            steps.push(`Base case: fib(${n}) = ${n}`);
+            return n;
+          }
+          memo[n] = fib(n - 1) + fib(n - 2);
+          steps.push(`Calculated fib(${n}) = ${memo[n]}`);
+          return memo[n];
+        }
+
+        return fib(n);
+      }
+
+      function handleCalculate() {
+        const inputNumber =
+          parseInt(document.getElementById("input-number").value) || 0;
+        const result = fibonacci(inputNumber);
+        document.getElementById(
+          "result"
+        ).textContent = `Fibonacci(${inputNumber}) = ${result}`;
+        renderSteps();
+      }
+
+      function renderSteps() {
+        const container = document.getElementById("steps-container");
+        container.innerHTML = ""; // Clear previous steps
+
+        steps.forEach((step) => {
+          const p = document.createElement("p");
+          p.className = "step-text";
+
+          if (step.includes("Retrieved")) {
+            p.classList.add("retrieved");
+          } else if (step.includes("Base case")) {
+            p.classList.add("base");
+          } else {
+            p.classList.add("calculated");
+          }
+
+          p.textContent = step;
+          container.appendChild(p);
+        });
+      }
+    </script>
+  </body>
+</html>
