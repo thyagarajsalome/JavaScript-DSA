@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sorting Algorithms Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f7f7f7;
+        text-align: center;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 10px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      input[type="text"],
+      input[type="range"] {
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+      .array-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .array-item {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #ccc;
+        font-weight: bold;
+        font-size: 16px;
+        transition: transform 0.3s ease;
+      }
+      .sorting {
+        border-color: #007bff;
+        background-color: #cce5ff;
+      }
+      .sorted {
+        border-color: #28a745;
+        background-color: #d4edda;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sorting Algorithms Visualization</h1>
+
+    <!-- Algorithm Selection -->
+    <div>
+      <button id="bubble-btn" onclick="setAlgorithm('bubble')">
+        Bubble Sort
+      </button>
+      <button id="quick-btn" onclick="setAlgorithm('quick')">Quick Sort</button>
+    </div>
+
+    <!-- Sort and Generate Controls -->
+    <div>
+      <button id="sort-btn" onclick="handleSort()">Sort</button>
+      <button id="generate-btn" onclick="generateArray()">
+        Generate New Array
+      </button>
+    </div>
+
+    <!-- Speed Control -->
+    <div>
+      <label for="speed-range">Speed:</label>
+      <input
+        type="range"
+        id="speed-range"
+        min="50"
+        max="1000"
+        value="500"
+        onchange="setSpeed(this.value)"
+      />
+      <span id="speed-display">500ms</span>
+    </div>
+
+    <!-- Add New Item -->
+    <div>
+      <input type="text" id="new-item" placeholder="Enter number or string" />
+      <button onclick="addItem()">Add Item</button>
+    </div>
+
+    <!-- Array Display -->
+    <div class="array-container" id="array-container"></div>
+
+    <script>
+      let array = [];
+      let sorting = false;
+      let algorithm = "bubble";
+      let speed = 500;
+      let comparingIndices = [];
+      let sortedIndices = [];
+      let newItem = "";
+
+      // Generate array and reset variables
+      function generateArray() {
+        array = Array.from({ length: 10 }, () =>
+          Math.floor(Math.random() * 100)
+        );
+        sortedIndices = [];
+        comparingIndices = [];
+        renderArray();
+      }
+
+      // Set the selected algorithm
+      function setAlgorithm(algo) {
+        algorithm = algo;
+        document.getElementById("bubble-btn").disabled = algo === "bubble";
+        document.getElementById("quick-btn").disabled = algo === "quick";
+      }
+
+      // Set the sorting speed
+      function setSpeed(newSpeed) {
+        speed = newSpeed;
+        document.getElementById("speed-display").textContent = `${newSpeed}ms`;
+      }
+
+      // Render the array
+      function renderArray() {
+        const container = document.getElementById("array-container");
+        container.innerHTML = "";
+        array.forEach((item, index) => {
+          const div = document.createElement("div");
+          div.className = `array-item ${
+            comparingIndices.includes(index) ? "sorting" : ""
+          } ${sortedIndices.includes(index) ? "sorted" : ""}`;
+          div.textContent = String(item);
+          container.appendChild(div);
+        });
+      }
+
+      // Sleep function for delays
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      // Bubble sort algorithm
+      async function bubbleSort() {
+        let n = array.length;
+        for (let i = 0; i < n - 1; i++) {
+          for (let j = 0; j < n - i - 1; j++) {
+            comparingIndices = [j, j + 1];
+            renderArray();
+            await sleep(speed);
+
+            if (array[j] > array[j + 1]) {
+              [array[j], array[j + 1]] = [array[j + 1], array[j]];
+              renderArray();
+            }
+          }
+          sortedIndices.push(n - i - 1);
+        }
+        comparingIndices = [];
+        sortedIndices = [...Array(array.length).keys()];
+        renderArray();
+      }
+
+      // Quick sort algorithm
+      async function quickSort(start = 0, end = array.length - 1) {
+        if (start >= end) {
+          sortedIndices.push(start);
+          return;
+        }
+
+        let pivotIndex = await partition(start, end);
+        sortedIndices.push(pivotIndex);
+
+        await quickSort(start, pivotIndex - 1);
+        await quickSort(pivotIndex + 1, end);
+      }
+
+      async function partition(start, end) {
+        const pivotValue = array[end];
+        let pivotIndex = start;
+        for (let i = start; i < end; i++) {
+          comparingIndices = [i, end];
+          renderArray();
+          await sleep(speed);
+
+          if (array[i] < pivotValue) {
+            [array[i], array[pivotIndex]] = [array[pivotIndex], array[i]];
+            renderArray();
+            pivotIndex++;
+          }
+        }
+        [array[pivotIndex], array[end]] = [array[end], array[pivotIndex]];
+        renderArray();
+        return pivotIndex;
+      }
+
+      // Handle the sort button click
+      async function handleSort() {
+        if (sorting) return;
+        sorting = true;
+        sortedIndices = [];
+        comparingIndices = [];
+        if (algorithm === "bubble") {
+          await bubbleSort();
+        } else {
+          await quickSort();
+        }
+        sorting = false;
+      }
+
+      // Add new item to array
+      function addItem() {
+        const value = document.getElementById("new-item").value;
+        if (value.trim() !== "") {
+          array.push(isNaN(value) ? value : Number(value));
+          document.getElementById("new-item").value = "";
+          renderArray();
+        }
+      }
+
+      // Initialize
+      generateArray();
+    </script>
+  </body>
+</html>

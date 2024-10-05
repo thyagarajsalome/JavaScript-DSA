@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recursion Visualization: Factorial</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f7f7f7;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      input[type="number"] {
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 80px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .result {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .step-card {
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
+      .bg-blue {
+        background-color: #e0f7fa;
+      }
+      .bg-green {
+        background-color: #d4edda;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Recursion Visualization: Factorial</h2>
+
+      <!-- Input for number and calculate button -->
+      <div>
+        <input type="number" id="input-number" value="5" min="0" max="10" />
+        <button onclick="handleCalculate()">Calculate Factorial</button>
+      </div>
+
+      <!-- Display result -->
+      <div id="result" class="result"></div>
+
+      <!-- Steps visualization -->
+      <div id="steps-container"></div>
+    </div>
+
+    <script>
+      let steps = [];
+
+      function factorial(n, depth = 0) {
+        steps.push({ n, depth });
+        if (n <= 1) return 1;
+        const subResult = n * factorial(n - 1, depth + 1);
+        steps.push({ n, depth, result: subResult });
+        return subResult;
+      }
+
+      function handleCalculate() {
+        const inputNumber =
+          parseInt(document.getElementById("input-number").value) || 0;
+        steps = [];
+        const result = factorial(inputNumber);
+        document.getElementById(
+          "result"
+        ).textContent = `Factorial of ${inputNumber} is: ${result}`;
+        renderSteps();
+      }
+
+      function renderSteps() {
+        const container = document.getElementById("steps-container");
+        container.innerHTML = ""; // Clear previous steps
+        steps.forEach((step) => {
+          const stepDiv = document.createElement("div");
+          stepDiv.className = `step-card ${
+            step.result ? "bg-green" : "bg-blue"
+          }`;
+          stepDiv.style.marginLeft = `${step.depth * 20}px`;
+
+          stepDiv.textContent = step.result
+            ? `factorial(${step.n}) = ${step.result}`
+            : `factorial(${step.n}) = ${step.n} * factorial(${step.n - 1})`;
+
+          container.appendChild(stepDiv);
+        });
+      }
+    </script>
+  </body>
+</html>
