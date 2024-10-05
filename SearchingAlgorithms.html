@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Algorithms Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #f7f7f7;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button.outline {
+        background-color: white;
+        color: #007bff;
+        border: 2px solid #007bff;
+      }
+      input[type="number"],
+      input[type="range"] {
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+      .array-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .array-item {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid #ccc;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .searching {
+        border-color: #007bff;
+        background-color: #cce5ff;
+      }
+      .found {
+        border-color: #28a745;
+        background-color: #d4edda;
+      }
+      .status {
+        text-align: center;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Search Algorithms Visualization</h1>
+
+      <!-- Algorithm Selection -->
+      <div>
+        <button
+          id="linear-btn"
+          class="outline"
+          onclick="setAlgorithm('linear')"
+        >
+          Linear Search
+        </button>
+        <button
+          id="binary-btn"
+          class="outline"
+          onclick="setAlgorithm('binary')"
+        >
+          Binary Search
+        </button>
+      </div>
+
+      <!-- Target Input and Controls -->
+      <div style="margin-top: 20px">
+        <input type="number" id="target-input" placeholder="Target" />
+        <button onclick="handleSearch()">Search</button>
+        <button onclick="generateArray()">Generate New Array</button>
+      </div>
+
+      <!-- Speed Control -->
+      <div style="margin-top: 20px">
+        <label for="speed-range">Speed:</label>
+        <input
+          type="range"
+          id="speed-range"
+          min="100"
+          max="1000"
+          value="500"
+          oninput="setSpeed(this.value)"
+        />
+        <span id="speed-display">500ms</span>
+      </div>
+
+      <!-- Array Display -->
+      <div class="array-container" id="array-container"></div>
+
+      <!-- Search Status -->
+      <div class="status" id="status"></div>
+    </div>
+
+    <script>
+      let array = [];
+      let target = "";
+      let currentIndex = -1;
+      let found = false;
+      let algorithm = "linear";
+      let speed = 500;
+
+      // Generate array and reset variables
+      function generateArray() {
+        array = Array.from({ length: 10 }, () =>
+          Math.floor(Math.random() * 100)
+        );
+        if (algorithm === "binary") array.sort((a, b) => a - b);
+        currentIndex = -1;
+        found = false;
+        renderArray();
+        setStatus("");
+      }
+
+      // Set the selected algorithm
+      function setAlgorithm(algo) {
+        algorithm = algo;
+        document
+          .getElementById("linear-btn")
+          .classList.toggle("outline", algo !== "linear");
+        document
+          .getElementById("binary-btn")
+          .classList.toggle("outline", algo !== "binary");
+        generateArray();
+      }
+
+      // Set the search speed
+      function setSpeed(newSpeed) {
+        speed = newSpeed;
+        document.getElementById("speed-display").textContent = `${newSpeed}ms`;
+      }
+
+      // Render the array
+      function renderArray() {
+        const container = document.getElementById("array-container");
+        container.innerHTML = "";
+        array.forEach((num, index) => {
+          const item = document.createElement("div");
+          item.className = `array-item ${
+            index === currentIndex ? (found ? "found" : "searching") : ""
+          }`;
+          item.textContent = num;
+          container.appendChild(item);
+        });
+      }
+
+      // Set the status message
+      function setStatus(message) {
+        document.getElementById("status").textContent = message;
+      }
+
+      // Handle the search button click
+      function handleSearch() {
+        target = parseInt(document.getElementById("target-input").value);
+        if (isNaN(target)) {
+          setStatus("Please enter a valid number");
+          return;
+        }
+        if (algorithm === "linear") {
+          linearSearch();
+        } else {
+          binarySearch();
+        }
+      }
+
+      // Linear search implementation
+      async function linearSearch() {
+        setStatus("Searching...");
+        for (let i = 0; i < array.length; i++) {
+          currentIndex = i;
+          renderArray();
+          await new Promise((resolve) => setTimeout(resolve, speed));
+          if (array[i] === target) {
+            found = true;
+            setStatus(`Found at index ${i}`);
+            renderArray();
+            return;
+          }
+        }
+        setStatus("Not found");
+        currentIndex = -1;
+        found = false;
+        renderArray();
+      }
+
+      // Binary search implementation
+      async function binarySearch() {
+        let left = 0;
+        let right = array.length - 1;
+        setStatus("Searching...");
+        while (left <= right) {
+          const mid = Math.floor((left + right) / 2);
+          currentIndex = mid;
+          renderArray();
+          await new Promise((resolve) => setTimeout(resolve, speed));
+
+          if (array[mid] === target) {
+            found = true;
+            setStatus(`Found at index ${mid}`);
+            renderArray();
+            return;
+          }
+          if (array[mid] < target) {
+            left = mid + 1;
+          } else {
+            right = mid - 1;
+          }
+        }
+        setStatus("Not found");
+        currentIndex = -1;
+        found = false;
+        renderArray();
+      }
+
+      // Initialize
+      generateArray();
+    </script>
+  </body>
+</html>
