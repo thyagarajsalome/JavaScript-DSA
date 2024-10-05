@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Min Heap Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      input {
+        padding: 5px;
+        margin-right: 10px;
+      }
+      button {
+        padding: 5px 10px;
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      #heap-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        border: 1px solid #ccc;
+        margin-top: 20px;
+      }
+      .heap-node {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #3498db;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Min Heap Visualization</h2>
+    <div>
+      <input type="number" id="input-value" placeholder="Enter a number" />
+      <button onclick="handleInsert()">Insert</button>
+    </div>
+    <div id="heap-container"></div>
+
+    <script>
+      class MinHeap {
+        constructor() {
+          this.heap = [];
+        }
+        insert(value) {
+          this.heap.push(value);
+          this.bubbleUp();
+        }
+        bubbleUp() {
+          let index = this.heap.length - 1;
+          while (index > 0) {
+            let parentIndex = Math.floor((index - 1) / 2);
+            if (this.heap[index] >= this.heap[parentIndex]) break;
+            [this.heap[index], this.heap[parentIndex]] = [
+              this.heap[parentIndex],
+              this.heap[index],
+            ];
+            index = parentIndex;
+          }
+        }
+      }
+
+      const heap = new MinHeap();
+
+      function handleInsert() {
+        const inputElement = document.getElementById("input-value");
+        const value = parseInt(inputElement.value);
+        if (!isNaN(value)) {
+          heap.insert(value);
+          inputElement.value = "";
+          renderHeapNodes();
+        }
+      }
+
+      function renderHeapNodes() {
+        const container = document.getElementById("heap-container");
+        container.innerHTML = "";
+        const levelWidth = 80;
+        const levelHeight = 60;
+
+        heap.heap.forEach((value, index) => {
+          const level = Math.floor(Math.log2(index + 1));
+          const position = index - (Math.pow(2, level) - 1);
+          const totalNodesInLevel = Math.pow(2, level);
+          const x =
+            ((position + 0.5) * (levelWidth * totalNodesInLevel)) /
+            totalNodesInLevel;
+          const y = level * levelHeight;
+
+          const node = document.createElement("div");
+          node.className = "heap-node";
+          node.style.left = `${x}px`;
+          node.style.top = `${y}px`;
+          node.textContent = value;
+          container.appendChild(node);
+        });
+      }
+    </script>
+  </body>
+</html>

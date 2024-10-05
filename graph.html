@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+      }
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .section {
+        margin-bottom: 20px;
+      }
+      .section h3 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      input,
+      select,
+      button {
+        padding: 8px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .alert {
+        background-color: #e0f7fa;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        color: #007bff;
+      }
+      .graph-output {
+        background-color: #eee;
+        padding: 10px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">Graph Visualization</div>
+
+      <!-- Section: Add Vertex -->
+      <div class="section">
+        <h3>Add Vertex</h3>
+        <input type="text" id="vertexInput" placeholder="Enter vertex name" />
+        <button onclick="handleAddVertex()">Add Vertex</button>
+      </div>
+
+      <!-- Section: Add Edge -->
+      <div class="section">
+        <h3>Add Edge</h3>
+        <select id="edgeStart">
+          <option value="">Select start vertex</option>
+        </select>
+        <select id="edgeEnd">
+          <option value="">Select end vertex</option>
+        </select>
+        <button onclick="handleAddEdge()">Add Edge</button>
+      </div>
+
+      <!-- Message Alert -->
+      <div id="alert" class="alert" style="display: none"></div>
+
+      <!-- Graph Structure Output -->
+      <div class="graph-output">
+        <h3>Graph Structure:</h3>
+        <div id="graphStructure"></div>
+      </div>
+    </div>
+
+    <script>
+      class Graph {
+        constructor() {
+          this.adjacencyList = {};
+        }
+        addVertex(vertex) {
+          if (!this.adjacencyList[vertex]) {
+            this.adjacencyList[vertex] = [];
+          }
+        }
+        addEdge(v1, v2) {
+          this.addVertex(v1);
+          this.addVertex(v2);
+          if (!this.adjacencyList[v1].includes(v2)) {
+            this.adjacencyList[v1].push(v2);
+            this.adjacencyList[v2].push(v1);
+          }
+        }
+      }
+
+      let graph = new Graph();
+
+      // Handle adding vertex
+      function handleAddVertex() {
+        const vertexInput = document.getElementById("vertexInput").value.trim();
+        if (vertexInput !== "") {
+          graph.addVertex(vertexInput);
+          updateGraphStructure();
+          updateSelectOptions();
+          showMessage(`Vertex "${vertexInput}" added to the graph.`);
+          document.getElementById("vertexInput").value = "";
+        }
+      }
+
+      // Handle adding edge
+      function handleAddEdge() {
+        const edgeStart = document.getElementById("edgeStart").value;
+        const edgeEnd = document.getElementById("edgeEnd").value;
+        if (edgeStart && edgeEnd) {
+          graph.addEdge(edgeStart, edgeEnd);
+          updateGraphStructure();
+          showMessage(`Edge added between "${edgeStart}" and "${edgeEnd}".`);
+          document.getElementById("edgeStart").value = "";
+          document.getElementById("edgeEnd").value = "";
+        }
+      }
+
+      // Update the graph structure display
+      function updateGraphStructure() {
+        const graphStructureDiv = document.getElementById("graphStructure");
+        graphStructureDiv.innerHTML = "";
+        for (const [vertex, edges] of Object.entries(graph.adjacencyList)) {
+          const vertexDiv = document.createElement("div");
+          vertexDiv.innerHTML = `<strong>${vertex}:</strong> ${edges.join(
+            ", "
+          )}`;
+          graphStructureDiv.appendChild(vertexDiv);
+        }
+      }
+
+      // Update the select options for edges
+      function updateSelectOptions() {
+        const edgeStartSelect = document.getElementById("edgeStart");
+        const edgeEndSelect = document.getElementById("edgeEnd");
+
+        // Clear current options
+        edgeStartSelect.innerHTML =
+          '<option value="">Select start vertex</option>';
+        edgeEndSelect.innerHTML = '<option value="">Select end vertex</option>';
+
+        for (const vertex of Object.keys(graph.adjacencyList)) {
+          const option1 = document.createElement("option");
+          option1.value = option1.text = vertex;
+          const option2 = document.createElement("option");
+          option2.value = option2.text = vertex;
+
+          edgeStartSelect.add(option1);
+          edgeEndSelect.add(option2);
+        }
+      }
+
+      // Show a message to the user
+      function showMessage(message) {
+        const alertDiv = document.getElementById("alert");
+        alertDiv.style.display = "block";
+        alertDiv.innerHTML = message;
+        setTimeout(() => {
+          alertDiv.style.display = "none";
+        }, 3000);
+      }
+
+      // Initialize graph visualization
+      updateGraphStructure();
+    </script>
+  </body>
+</html>
