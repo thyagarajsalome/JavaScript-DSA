@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Linked List Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      .input-container {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .list-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 16px;
+      }
+      .node {
+        display: flex;
+        align-items: center;
+      }
+      .node-content {
+        width: 80px;
+        height: 80px;
+        border: 2px solid #3b82f6;
+        border-radius: 8px;
+        background-color: #dbeafe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .arrow {
+        margin: 0 8px;
+        font-size: 24px;
+      }
+      .empty-message {
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Linked List Visualization</h2>
+    <div class="input-container">
+      <input type="text" id="newItem" placeholder="Enter item to append" />
+      <button id="appendButton">Append</button>
+    </div>
+    <div id="listContainer" class="list-container">
+      <span class="empty-message">List is empty</span>
+    </div>
+
+    <script>
+      let list = [];
+      const newItemInput = document.getElementById("newItem");
+      const listContainer = document.getElementById("listContainer");
+      const appendButton = document.getElementById("appendButton");
+
+      function updateListView() {
+        listContainer.innerHTML = "";
+        if (list.length === 0) {
+          listContainer.innerHTML =
+            '<span class="empty-message">List is empty</span>';
+        } else {
+          list.forEach((item, index) => {
+            const nodeDiv = document.createElement("div");
+            nodeDiv.className = "node";
+            nodeDiv.innerHTML = `
+                        <div class="node-content">${item}</div>
+                        ${
+                          index !== list.length - 1
+                            ? '<span class="arrow">➡️</span>'
+                            : ""
+                        }
+                    `;
+            listContainer.appendChild(nodeDiv);
+          });
+        }
+      }
+
+      function appendItem() {
+        const newItem = newItemInput.value.trim();
+        if (newItem !== "") {
+          list.push(newItem);
+          updateListView();
+          newItemInput.value = "";
+        }
+      }
+
+      appendButton.addEventListener("click", appendItem);
+
+      // Initialize the list view
+      updateListView();
+    </script>
+  </body>
+</html>
