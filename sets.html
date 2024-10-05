@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Set Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        background-color: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+      }
+      h2 {
+        text-align: center;
+        color: #1f2937;
+        margin-bottom: 16px;
+      }
+      .input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      input {
+        flex-grow: 1;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+      }
+      button {
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      .add-btn {
+        background-color: #10b981;
+      }
+      .remove-btn {
+        background-color: #ef4444;
+      }
+      .check-btn {
+        background-color: #3b82f6;
+      }
+      .set-display {
+        background-color: #f3f4f6;
+        padding: 16px;
+        border-radius: 6px;
+        margin-bottom: 16px;
+      }
+      .set-display h3 {
+        margin-top: 0;
+        margin-bottom: 8px;
+      }
+      .set-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .set-item {
+        background-color: #bfdbfe;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .message {
+        background-color: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        color: #92400e;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .set-size {
+        font-size: 14px;
+        color: #4b5563;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Set Visualization</h2>
+
+      <div class="input-group">
+        <input type="text" id="inputElement" placeholder="Enter an element" />
+        <button class="add-btn" onclick="addElement()">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </button>
+        <button class="remove-btn" onclick="removeElement()">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="input-group">
+        <input
+          type="text"
+          id="checkElement"
+          placeholder="Check for an element"
+        />
+        <button class="check-btn" onclick="checkElement()">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="set-display">
+        <h3>Current Set:</h3>
+        <div id="setItems" class="set-items"></div>
+      </div>
+
+      <div id="message" class="message" style="display: none"></div>
+
+      <div id="setSize" class="set-size"></div>
+    </div>
+
+    <script>
+      let set = new Set();
+
+      function addElement() {
+        const input = document.getElementById("inputElement");
+        const value = input.value.trim();
+        if (value !== "") {
+          set.add(value);
+          input.value = "";
+          updateSetDisplay();
+          showMessage(`Added ${value} to the set.`);
+        }
+      }
+
+      function removeElement() {
+        const input = document.getElementById("inputElement");
+        const value = input.value.trim();
+        if (value !== "") {
+          const deleted = set.delete(value);
+          input.value = "";
+          updateSetDisplay();
+          showMessage(
+            deleted
+              ? `Removed ${value} from the set.`
+              : `${value} not found in the set.`
+          );
+        }
+      }
+
+      function checkElement() {
+        const input = document.getElementById("checkElement");
+        const value = input.value.trim();
+        if (value !== "") {
+          const exists = set.has(value);
+          showMessage(
+            exists
+              ? `${value} exists in the set.`
+              : `${value} does not exist in the set.`
+          );
+        }
+      }
+
+      function updateSetDisplay() {
+        const setItems = document.getElementById("setItems");
+        setItems.innerHTML = "";
+        set.forEach((item) => {
+          const span = document.createElement("span");
+          span.className = "set-item";
+          span.textContent = item;
+          setItems.appendChild(span);
+        });
+        document.getElementById(
+          "setSize"
+        ).textContent = `Set size: ${set.size}`;
+      }
+
+      function showMessage(msg) {
+        const messageElement = document.getElementById("message");
+        messageElement.textContent = msg;
+        messageElement.style.display = "block";
+        setTimeout(() => {
+          messageElement.style.display = "none";
+        }, 3000);
+      }
+
+      // Initial render
+      updateSetDisplay();
+    </script>
+  </body>
+</html>

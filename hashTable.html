@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Hash Table Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #333;
+      }
+      .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      button.add {
+        background-color: #3b82f6;
+      }
+      button.search {
+        background-color: #10b981;
+      }
+      button.reset {
+        background-color: #6b7280;
+      }
+      .search-result {
+        background-color: #fef3c7;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+      .hash-table {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      .bucket {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        background-color: #f9fafb;
+        cursor: pointer;
+      }
+      .bucket.selected {
+        background-color: #dbeafe;
+      }
+      .bucket-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .bucket ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+      .bucket li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3px;
+      }
+      .remove-item {
+        color: #ef4444;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Interactive Hash Table Visualization</h2>
+
+      <div class="input-group">
+        <input type="text" id="keyInput" placeholder="Key" />
+        <input type="text" id="valueInput" placeholder="Value" />
+        <button class="add" onclick="handleAdd()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add
+        </button>
+      </div>
+
+      <div class="input-group">
+        <input type="text" id="searchInput" placeholder="Search key" />
+        <button class="search" onclick="handleSearch()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          Search
+        </button>
+      </div>
+
+      <div id="searchResult" class="search-result" style="display: none"></div>
+
+      <div id="loadFactor"></div>
+
+      <div id="hashTable" class="hash-table"></div>
+
+      <button class="reset" onclick="handleReset()">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M23 4v6h-6"></path>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Reset
+      </button>
+    </div>
+
+    <script>
+      const HASH_TABLE_SIZE = 10;
+      let hashTable = Array(HASH_TABLE_SIZE)
+        .fill()
+        .map(() => []);
+      let selectedBucket = null;
+
+      function hash(key) {
+        let total = 0;
+        for (let i = 0; i < key.length; i++) {
+          total += key.charCodeAt(i);
+        }
+        return total % HASH_TABLE_SIZE;
+      }
+
+      function handleAdd() {
+        const key = document.getElementById("keyInput").value;
+        const value = document.getElementById("valueInput").value;
+        if (key && value) {
+          const index = hash(key);
+          const existingItemIndex = hashTable[index].findIndex(
+            (item) => item.key === key
+          );
+          if (existingItemIndex !== -1) {
+            hashTable[index][existingItemIndex] = { key, value };
+          } else {
+            hashTable[index].push({ key, value });
+          }
+          document.getElementById("keyInput").value = "";
+          document.getElementById("valueInput").value = "";
+          renderHashTable();
+          updateLoadFactor();
+        }
+      }
+
+      function handleSearch() {
+        const searchKey = document.getElementById("searchInput").value;
+        if (searchKey) {
+          const index = hash(searchKey);
+          const item = hashTable[index].find((item) => item.key === searchKey);
+          const searchResult = document.getElementById("searchResult");
+          searchResult.textContent = item
+            ? `Search Result: ${item.value}`
+            : "Search Result: Not found";
+          searchResult.style.display = "block";
+          selectedBucket = index;
+          renderHashTable();
+        }
+      }
+
+      function handleRemove(bucketIndex, itemKey) {
+        hashTable[bucketIndex] = hashTable[bucketIndex].filter(
+          (item) => item.key !== itemKey
+        );
+        renderHashTable();
+        updateLoadFactor();
+        document.getElementById("searchResult").style.display = "none";
+      }
+
+      function handleReset() {
+        hashTable = Array(HASH_TABLE_SIZE)
+          .fill()
+          .map(() => []);
+        selectedBucket = null;
+        document.getElementById("keyInput").value = "";
+        document.getElementById("valueInput").value = "";
+        document.getElementById("searchInput").value = "";
+        document.getElementById("searchResult").style.display = "none";
+        renderHashTable();
+        updateLoadFactor();
+      }
+
+      function renderHashTable() {
+        const hashTableElement = document.getElementById("hashTable");
+        hashTableElement.innerHTML = "";
+        hashTable.forEach((bucket, index) => {
+          const bucketElement = document.createElement("div");
+          bucketElement.className = `bucket ${
+            index === selectedBucket ? "selected" : ""
+          }`;
+          bucketElement.onclick = () => {
+            selectedBucket = index;
+            renderHashTable();
+          };
+
+          const bucketTitle = document.createElement("div");
+          bucketTitle.className = "bucket-title";
+          bucketTitle.textContent = `Bucket ${index}`;
+          bucketElement.appendChild(bucketTitle);
+
+          if (bucket.length === 0) {
+            const emptySpan = document.createElement("span");
+            emptySpan.textContent = "Empty";
+            emptySpan.style.color = "#888";
+            bucketElement.appendChild(emptySpan);
+          } else {
+            const ul = document.createElement("ul");
+            bucket.forEach((item) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                            <span>${item.key}: ${item.value}</span>
+                            <button class="remove-item" onclick="event.stopPropagation(); handleRemove(${index}, '${item.key}')" title="Remove item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        `;
+              ul.appendChild(li);
+            });
+            bucketElement.appendChild(ul);
+          }
+          hashTableElement.appendChild(bucketElement);
+        });
+      }
+
+      function updateLoadFactor() {
+        const totalItems = hashTable.reduce(
+          (sum, bucket) => sum + bucket.length,
+          0
+        );
+        const loadFactor = totalItems / HASH_TABLE_SIZE;
+        document.getElementById(
+          "loadFactor"
+        ).textContent = `Load Factor: ${loadFactor.toFixed(2)}`;
+      }
+
+      // Initial render
+      renderHashTable();
+      updateLoadFactor();
+    </script>
+  </body>
+</html>

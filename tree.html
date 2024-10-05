@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tree Visualization</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .reset-button {
+        background-color: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+
+      .reset-button svg {
+        margin-right: 5px;
+      }
+
+      .tree-node {
+        margin-left: 20px;
+      }
+
+      .node-content {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .toggle-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-right: 5px;
+      }
+
+      .remove-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #ef4444;
+        margin-left: 5px;
+      }
+
+      .add-child-form {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+        margin-left: 25px;
+      }
+
+      .add-child-input {
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        padding: 5px 10px;
+        margin-right: 10px;
+      }
+
+      .add-child-button {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+
+      .add-child-button svg {
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2 class="title">Tree Visualization</h2>
+        <button id="resetButton" class="reset-button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="rotate-ccw"
+          >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+          Reset Tree
+        </button>
+      </div>
+      <div id="treeContainer"></div>
+    </div>
+
+    <script>
+      class TreeNode {
+        constructor(data) {
+          this.data = data;
+          this.children = [];
+          this.isExpanded = false;
+        }
+      }
+
+      class Tree {
+        constructor() {
+          this.root = new TreeNode("root");
+          this.treeContainer = document.getElementById("treeContainer");
+          this.resetButton = document.getElementById("resetButton");
+          this.resetButton.addEventListener("click", () => this.resetTree());
+          this.renderTree();
+        }
+
+        renderTree() {
+          this.treeContainer.innerHTML = "";
+          this.renderNode(this.root, this.treeContainer);
+        }
+
+        renderNode(node, container) {
+          const nodeElement = document.createElement("div");
+          nodeElement.className = "tree-node";
+
+          const nodeContent = document.createElement("div");
+          nodeContent.className = "node-content";
+
+          if (node.children.length > 0) {
+            const toggleButton = document.createElement("button");
+            toggleButton.className = "toggle-button";
+            toggleButton.innerHTML = node.isExpanded
+              ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>'
+              : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+            toggleButton.addEventListener("click", () => this.toggleNode(node));
+            nodeContent.appendChild(toggleButton);
+          }
+
+          const nodeLabel = document.createElement("span");
+          nodeLabel.textContent = node.data;
+          nodeContent.appendChild(nodeLabel);
+
+          if (node.data !== "root") {
+            const removeButton = document.createElement("button");
+            removeButton.className = "remove-button";
+            removeButton.innerHTML =
+              '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>';
+            removeButton.addEventListener("click", () => this.removeNode(node));
+            nodeContent.appendChild(removeButton);
+          }
+
+          nodeElement.appendChild(nodeContent);
+
+          if (node.isExpanded) {
+            node.children.forEach((child) =>
+              this.renderNode(child, nodeElement)
+            );
+          }
+
+          const addChildForm = document.createElement("div");
+          addChildForm.className = "add-child-form";
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "add-child-input";
+          input.placeholder = "New child name";
+          const addButton = document.createElement("button");
+          addButton.className = "add-child-button";
+          addButton.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add Child';
+          addButton.addEventListener("click", () =>
+            this.addChild(node, input.value)
+          );
+          addChildForm.appendChild(input);
+          addChildForm.appendChild(addButton);
+          nodeElement.appendChild(addChildForm);
+
+          container.appendChild(nodeElement);
+        }
+
+        toggleNode(node) {
+          node.isExpanded = !node.isExpanded;
+          this.renderTree();
+        }
+
+        addChild(parent, childName) {
+          if (childName.trim()) {
+            const newChild = new TreeNode(childName.trim());
+            parent.children.push(newChild);
+            parent.isExpanded = true;
+            this.renderTree();
+          }
+        }
+
+        removeNode(nodeToRemove) {
+          const removeFromParent = (parent) => {
+            const index = parent.children.indexOf(nodeToRemove);
+            if (index !== -1) {
+              parent.children.splice(index, 1);
+              return true;
+            }
+            for (let child of parent.children) {
+              if (removeFromParent(child)) {
+                return true;
+              }
+            }
+            return false;
+          };
+
+          removeFromParent(this.root);
+          this.renderTree();
+        }
+
+        resetTree() {
+          this.root = new TreeNode("root");
+          this.renderTree();
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new Tree();
+      });
+    </script>
+  </body>
+</html>
