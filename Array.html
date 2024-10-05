@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Interactive Array Visualizer</title>
+  </head>
+  <body>
+    <h2>Interactive Array Visualizer</h2>
+    <div id="arrayContainer" class="array-container"></div>
+    <div class="input-container">
+      <input type="text" id="newItem" placeholder="Enter new item" />
+      <button onclick="addItem()" class="btn-push">➕ Push</button>
+      <button onclick="removeItem()" class="btn-pop">➖ Pop</button>
+      <button onclick="unshiftItem()" class="btn-unshift">⬅️ Unshift</button>
+      <button onclick="shiftItem()" class="btn-shift">➡️ Shift</button>
+    </div>
+    <div id="message" class="message" style="display: none"></div>
+
+    <script>
+      let array = ["apple", "banana", "cherry"];
+      const arrayContainer = document.getElementById("arrayContainer");
+      const newItemInput = document.getElementById("newItem");
+      const messageDiv = document.getElementById("message");
+
+      function updateArrayView() {
+        arrayContainer.innerHTML = "";
+        array.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "array-item";
+          itemDiv.innerHTML = `
+                    <div class="array-item-index">Index: ${index}</div>
+                    <div>${item}</div>
+                `;
+          arrayContainer.appendChild(itemDiv);
+        });
+      }
+
+      function showMessage(text) {
+        messageDiv.innerHTML = `
+                <p>Action Result</p>
+                <p>${text}</p>
+            `;
+        messageDiv.style.display = "block";
+      }
+
+      function addItem() {
+        const newItem = newItemInput.value.trim();
+        if (newItem !== "") {
+          array.push(newItem);
+          updateArrayView();
+          newItemInput.value = "";
+          showMessage(`Added "${newItem}" to the end of the array.`);
+        }
+      }
+
+      function removeItem() {
+        if (array.length > 0) {
+          const removedItem = array.pop();
+          updateArrayView();
+          showMessage(`Removed "${removedItem}" from the end of the array.`);
+        } else {
+          showMessage("Cannot remove from an empty array.");
+        }
+      }
+
+      function shiftItem() {
+        if (array.length > 0) {
+          const shiftedItem = array.shift();
+          updateArrayView();
+          showMessage(
+            `Shifted "${shiftedItem}" from the beginning of the array.`
+          );
+        } else {
+          showMessage("Cannot shift from an empty array.");
+        }
+      }
+
+      function unshiftItem() {
+        const newItem = newItemInput.value.trim();
+        if (newItem !== "") {
+          array.unshift(newItem);
+          updateArrayView();
+          newItemInput.value = "";
+          showMessage(`Unshifted "${newItem}" to the beginning of the array.`);
+        }
+      }
+
+      // Initialize the array view
+      updateArrayView();
+    </script>
+  </body>
+</html>
